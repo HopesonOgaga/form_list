@@ -9,11 +9,20 @@ const initialItems = [
 ];
 
 export default function App() {
+  const [items, setItems] = useState([]);
+  function handleItems(item) {
+    setItems((items) => [...items, item]);
+  }
+
+  function handleDeleteItem(id) {
+    setItems((items) => items.filter((item) => item.id !== id));
+  }
+
   return (
     <div>
       <Logo />
-      <Form />
-      <PackingList />
+      <Form onAddItems={handleItems} />
+      <PackingList items={items} onDeleteItem={handleDeleteItem} />
       <Stats />
     </div>
   );
@@ -27,16 +36,20 @@ function Logo() {
   );
 }
 
-function Form() {
+function Form({ onAddItems }) {
   const [description, setDescription] = useState("");
   const [quantity, setQuantity] = useState(1);
 
+  //  handles data colection
+
+  // handles submission of form
   function handleSubmit(e) {
     e.preventDefault();
     if (!description) return;
     const newItem = { description, quantity, packed: false, id: Date.now() };
     setDescription("");
     setQuantity(1);
+    onAddItems(newItem);
     console.log(newItem);
   }
 
@@ -60,20 +73,20 @@ function Form() {
     </div>
   );
 }
-
-function PackingList() {
+// renders props
+function PackingList({ items, onDeleteItem }) {
   return (
     <div className="list">
       <ul className="">
-        {initialItems.map((items) => (
-          <Item items={items} key={items.id} />
+        {items.map((items) => (
+          <Item items={items} onDeleteItem={onDeleteItem} key={items.id} />
         ))}
       </ul>
     </div>
   );
 }
-
-function Item({ items }) {
+// list rendering
+function Item({ items, onDeleteItem }) {
   return (
     <li>
       <span
@@ -82,11 +95,11 @@ function Item({ items }) {
       >
         {items.quantity} {items.description}
       </span>
-      <button>❌</button>
+      <button onClick={() => onDeleteItem(items.id)}>❌</button>
     </li>
   );
 }
-
+// footer section
 function Stats() {
   return (
     <footer className="stats">
